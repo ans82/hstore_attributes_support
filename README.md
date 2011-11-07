@@ -1,19 +1,29 @@
-== hstore_attribute_support
+hstore attribute support
+========================
 
-A class that has hstore attribute support will get the ability to set up virtual
-attributes stored in hstore columns very easily.
+Enables AR models to set up virtual attributes stored in hstore columns.
+The main problem with a naked hstore solution in rails is, that defaults
+are not supported (no schema.rb that tells rails, what the default is) and the
+types get lost when loading the serialized hstore data into a hash.
+With hstore attribute support, you can wire up your models in a rails like
+fashion very easily.
 
+=== What it can do for you
 Consider a Person class with two hstore columns named "work_details" and
 "address". This class will, upon activation of the hstore attribute support, get
-new class methods: work_details_hstore_accessor and address_hstore_accessor.
+two new class methods: work_details_hstore_accessor and address_hstore_accessor.
+Activating the support is done by just inserting the method call
+"has_hstore_columns" into your AR class.
 
-These methods can be used on class level (like attr_accessor) to set up getter
-and setter methods for virtual attributes stored in these hstore columns.
-Additionally it will allow you to give a type hint and default values along.
-Because of that, new instances will be able to use an "after_initialize"
-callback to set up their hstore'd attributes to the default value which was
-provided, as well as enabling the getter methods to return values typecasted
-(hstore data looses its type and was returned as a string otherwise...)
+These methods can now be used (on AR class level, just like attr_accessor) to
+set up getter/setter methods for virtual attributes that are stored in the
+hstore columns.
+
+Additionally you are able to give a type hint and default values along.
+Because of that, new instances will be able (using an "after_initialize"
+callback) to set up their hstore'd attributes to the default value you provided.
+On top of this, the model obtains getter methods to return values typecasted
+(hstore data looses its type and was returned as a string otherwise...).
 
 **Example:**
 
