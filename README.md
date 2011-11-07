@@ -1,4 +1,4 @@
-hstore attribute support
+hstore_attribute_support
 ========================
 
 Enables AR models to set up virtual attributes stored in hstore columns.
@@ -8,7 +8,7 @@ types get lost when loading the serialized hstore data into a hash.
 With hstore attribute support, you can wire up your models in a rails like
 fashion very easily.
 
-=== What it can do for you
+### What it can do for you
 Consider a Person class with two hstore columns named "work_details" and
 "address". This class will, upon activation of the hstore attribute support, get
 two new class methods: work_details_hstore_accessor and address_hstore_accessor.
@@ -25,7 +25,7 @@ callback) to set up their hstore'd attributes to the default value you provided.
 On top of this, the model obtains getter methods to return values typecasted
 (hstore data looses its type and was returned as a string otherwise...).
 
-**Example:**
+### Example
 
     # Schema for User:
     # - id:   int
