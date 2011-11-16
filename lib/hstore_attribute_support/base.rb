@@ -19,7 +19,7 @@ module HstoreAttributeSupport
       # be used to set up this models hstore'd attributes more rails like.
       # A Person class with a data hstore column could setup its name like this:
       #
-      # data_hstore_accessor :name, :string, ''
+      # data_hstore_accessor :name, :cast => :string, :default => ''
       #
       # Which will set up accessors to the virtual attribute "name", defaults to
       # an empty string and is stored in the data column.
@@ -28,8 +28,8 @@ module HstoreAttributeSupport
       self.columns.each do |column|
         next unless column.type == :hstore
         class_eval %Q{
-          def self.#{column.name}_hstore_accessor(attribute_name, cast = nil, default = nil)
-            return hstore_attr_accessor(attribute_name, "#{column.name}", cast, default)
+          def self.#{column.name}_hstore_accessor(attribute_name, options = {})
+            return hstore_attr_accessor(attribute_name, "#{column.name}", options)
           end
         }
       end
@@ -38,7 +38,7 @@ module HstoreAttributeSupport
       # instance to set up default values for its hstore'd attributes.
       after_initialize do
         # iterate over the class instance variable "hstore_attributes", which
-        # contains types & defaults for virtual hstore attributes and apply them
+        # contains casts & defaults for virtual hstore attributes and apply them
         (self.class.hstore_attributes || {}).each do |attr_name, settings|
           column      = settings[:column]
           default     = settings[:default]
@@ -57,13 +57,18 @@ module HstoreAttributeSupport
       #    is lost by the hstore and was a pure string otherwise
       # 2. it provides an easy way to set up defaults, as rails AR mechanism
       #    fail here (no database defaults available for virtual attributes)
-      def hstore_attr_accessor(attribute_name, hstore_column, type  = nil, default = nil)
+      def hstore_attr_accessor(attribute_name, hstore_column, options = {})
+        options = {
+          :cast    => nil,
+          :default => nil
+        }.merge(options).with_indifferent_access
+
         self.hstore_attributes ||= {}
 
         self.hstore_attributes[attribute_name.to_s] = {
           :column  => hstore_column.to_s,
-          :type    => type,
-          :default => default
+          :cast    => options[:cast],
+          :default => options[:default]
         }
 
         class_eval %Q{
@@ -86,16 +91,16 @@ module HstoreAttributeSupport
       
       def read_hstore_attribute(attribute_name)
         ha_column   = self.class.hstore_attributes[attribute_name][:column]
-        ha_type     = self.class.hstore_attributes[attribute_name][:type]
+        ha_cast     = self.class.hstore_attributes[attribute_name][:cast]
         hstore_data = self.send(:"#{ha_column}").try(:with_indifferent_access)
 
         return nil unless hstore_data
 
         value = hstore_data[attribute_name]
 
-        return value unless ha_type
+        return value unless ha_cast
 
-        case ha_type
+        case ha_cast
         when :integer
           return value.to_i
         when :float
@@ -115,9 +120,9 @@ module HstoreAttributeSupport
         else
         end
 
-        return ha_type.call(value) if ha_type.is_a?(Proc)
+        return ha_cast.call(value) if ha_cast.is_a?(Proc)
 
-        raise "read_hstore_attribute failed when trying to cast the type \"#{ha_type.inspect}\". Please define the type as one of [:integer, :float, :decimal, :boolean, :string, :datetime, :date] or pass in a lambda with one parameter to perform custom casts."
+        raise "read_hstore_attribute failed when trying to cast the type \"#{ha_cast.inspect}\". Please define the type as one of [:integer, :float, :decimal, :boolean, :string, :datetime, :date] or pass in a lambda with one parameter to perform custom casts."
       end
 
       def write_hstore_attribute(attribute_name, value)

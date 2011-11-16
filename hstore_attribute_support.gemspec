@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name          = 'hstore_attribute_support'
-  s.version       = '0.0.3'
-  s.date          = '2011-11-07'
+  s.version       = '0.0.4'
+  s.date          = '2011-11-16'
   s.summary       = "Adds AR Attributes support for Postgres hstore columns "
   s.description   = "Adds AR Attributes support for Postgres hstore columns "
   s.authors       = ["Andreas Schwarzkopf"]
