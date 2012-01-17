@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'hstore_attribute_support'
-  s.version       = '0.0.4'
+  s.version       = '0.0.5'
   s.date          = '2011-11-16'
   s.summary       = "Adds AR Attributes support for Postgres hstore columns "
   s.description   = "Adds AR Attributes support for Postgres hstore columns "
@@ -12,5 +12,5 @@ Gem::Specification.new do |s|
   s.files         = `git ls-files`.split("\n")
   s.require_paths = ["lib"]
 
-  s.add_dependency 'activerecord-postgres-hstore', '>= 0.1.2'
+  #s.add_dependency 'activerecord-postgres-hstore', '>= 0.1.2'
 end
